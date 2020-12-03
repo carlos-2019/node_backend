@@ -39,18 +39,76 @@ const crearHospitales = async (req, res = response) => {
 
 }
 
-const actualizarHospitales = (req, res = response) => {
-    res.status(200).json({
-        ok: true,
-        mensaje: 'actualizar Hospitales'
-    });
+const actualizarHospitales = async (req, res = response) => {
+
+    const id = req.params.id;
+    const uid = req.uid;
+
+    try {
+
+        const hospital = await Hospital.findById(id);
+
+        // Si no existe
+        if (!hospital) {
+            return res.status(404).json({
+                ok: false,
+                mensaje: 'No existe un hospital con ese id'
+            });
+        }
+
+        // Actualizar
+        const cambiosHospital = {
+            ...req.body,
+            usuario: uid
+        }
+
+        const hospitalActualizado = await Hospital.findByIdAndUpdate(id, cambiosHospital, { new: true });
+
+
+        res.status(200).json({
+            ok: true,
+            hospital: hospitalActualizado
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            mensaje: 'Error inesperado, Hable con el administrador'
+        })
+    }
 }
 
-const borrarHospitales = (req, res = response) => {
-    res.status(200).json({
-        ok: true,
-        mensaje: 'eliminando Hospitales'
-    });
+const borrarHospitales = async (req, res = response) => {
+
+    const id = req.params.id;
+
+    try {
+
+        const hospital = await Hospital.findById(id);
+
+        // Si no existe
+        if (!hospital) {
+            return res.status(404).json({
+                ok: false,
+                mensaje: 'No existe un hospital con ese id'
+            });
+        }
+
+        await Hospital.findOneAndDelete(id);
+
+        res.status(200).json({
+            ok: true,
+            mensaje: 'Hospital Eliminado'
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            mensaje: 'Error inesperado, Hable con el administrador'
+        })
+    }
 }
 
 
